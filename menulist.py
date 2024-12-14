@@ -18,15 +18,21 @@ while True:
 
     elif choice == 2:
         print("Current names:", names)
-        old_name = input("Enter the name to change: ")
-        new_name = input("Enter the new name: ") 
-        names[names.index(old_name)] = new_name
-        print(f"Changed {old_name} to {new_name}")
+        old_name = input("Enter the name to change: ")  
+        if old_name in names:
+            new_name = input("Enter the new name: ") 
+            names[names.index(old_name)] = new_name
+            print(f"Changed {old_name} to {new_name}")
+        else:
+            print(f"{old_name} not found in the list.")
 
     elif choice == 3:
         print("Current names:", names)
         name_delete = input("Enter the name you want to delete:")
-        names.remove(name_delete)
+        if  name_delete in names:
+            names.remove(name_delete)
+        else:
+            print(f"{name_delete} not found in the list.")
 
     elif choice ==4:
         print("Current names:" )
