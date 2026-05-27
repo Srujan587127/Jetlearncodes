@@ -1,0 +1,108 @@
+import tkinter as tk
+from tkinter import *
+from tkinter import filedialog
+import cv2
+from PIL import Image, ImageTk
+
+root = tk.Tk()
+root.title("Image Editor")
+root.geometry("800x700")
+img = None
+original_img = None
+display_img = None
+
+def show_image(image):
+    global display_img
+    display_img = image
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = cv2.resize(image, (500, 350))
+
+    img_pil = Image.fromarray(image)
+    img_tk = ImageTk.PhotoImage(img_pil)
+
+    panel.config(image = img_tk)
+    panel.image = img_tk
+
+def load_image(path):
+    global img, original_img
+    img = cv2.imread(path)
+    original_img = img.copy()
+
+    show_image(img)
+
+def grayscale():
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    show_image(cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR))
+
+def blur():
+    blurred = cv2.GaussianBlur(img, (15,15), 0)
+    show_image(blurred)
+
+def edge():
+    edges = cv2.Canny(img, 100, 200)
+    show_image(cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR))
+
+def cartoon():
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 5)
+
+    edges = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9
+    )
+    color = cv2.bilateralFilter(img, 9, 250, 250)
+    cartoon_img = cv2.bitwise_and(color, color, mask=edges)
+
+    show_image(cartoon_img)
+
+def reset():
+    show_image(original_img)
+
+def save_image():
+    global display_img
+
+    file_path = filedialog.asksaveasfilename(
+        defaultextension = " .jpg",
+        filetypes = [("JPEG files", "*jpeg"), ("PNG files", "*.png")]
+    )
+
+    if file_path:
+        cv2.imwrite(file_path, display_img)
+        print("Image Saved Successfully!")
+
+panel = Label(root)
+panel.pack(pady = 20)
+
+frame_images = Frame(root)
+frame_images.pack(pady = 10)
+
+Button(frame_images, text = "Image 1", command = lambda: load_image("beach.jpg")).grid(row = 0, column = 0, padx = 5) 
+
+Button(frame_images, text = "Image 2", command = lambda: load_image("catbackgorund.jpg")).grid(row = 0, column = 1, padx = 5)
+
+Button(frame_images, text = "Image 3", command = lambda: load_image("field.jpg")).grid(row = 0, column = 2, padx = 5)
+
+Button(frame_images, text = "Image 4", command = lambda: load_image("lake.jpg")).grid(row = 0, column = 3, padx = 5)
+
+Button(frame_images, text = "Image 5", command = lambda: load_image("ocean.jpg")).grid(row = 0, column = 4, padx = 5)
+
+frame_filters= Frame(root)
+frame_filters.pack(pady = 20)
+
+Button(frame_filters, text = "Grayscale", command = grayscale).grid(row = 0, column = 0, padx = 5)
+
+Button(frame_filters, text = "Blur", command = blur).grid(row = 0, column = 1, padx = 5)
+
+Button(frame_filters, text = "Edge", command = edge).grid(row = 0, column = 2, padx = 5)
+
+Button(frame_filters, text = "Cartoon", command = cartoon).grid(row = 0, column = 3, padx = 5)
+
+Button(frame_filters, text = "Reset", command = reset).grid(row = 0, column = 4, padx = 5)
+
+Button(frame_filters, text = "Save Image", command = save_image, bg = "green", fg = "white").grid(row = 1, column = 2, pady = 15)
+
+load_image("beach.jpg")
+root.mainloop()
+
+
+
+
